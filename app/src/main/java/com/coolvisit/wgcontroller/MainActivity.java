@@ -43,6 +43,7 @@ import com.coolvisit.wgcontroller.controller.UserDB;
 import com.coolvisit.wgcontroller.controller.WGController;
 import com.coolvisit.wgcontroller.scanqr.ui.CaptureActivity;
 
+//提交
 public class MainActivity extends Activity {
 
 	private IAccessController mAC;

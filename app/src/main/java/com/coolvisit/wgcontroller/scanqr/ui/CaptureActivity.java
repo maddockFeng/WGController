@@ -84,14 +84,16 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     private Rect mCropRect = null;
     private String commond = "%1$s?vgdecoderesult=%2$s&&devicenumber=%3$s&&otherparams";
     private TextView resultView;
+
     public Handler getHandler() {
         return handler;
     }
-    private Handler mHandler = new Handler(){
+
+    private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            String result = (String)msg.obj;
+            String result = (String) msg.obj;
             resultView.setVisibility(View.VISIBLE);
             resultView.setText(Html.fromHtml(result));
         }
@@ -102,7 +104,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     }
 
     private boolean isHasSurface = false;
-    private String api;
+    private String api, reader;
+
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
@@ -111,7 +114,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_capture);
 
-        resultView =(TextView)findViewById(R.id.result);
+        resultView = (TextView) findViewById(R.id.result);
         scanPreview = (SurfaceView) findViewById(R.id.capture_preview);
         scanContainer = (RelativeLayout) findViewById(R.id.capture_container);
         scanCropView = (RelativeLayout) findViewById(R.id.capture_crop_view);
@@ -145,6 +148,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         });
 
         api = getIntent().getStringExtra("api");
+        reader = getIntent().getStringExtra("reader");
     }
 
     @Override
@@ -235,7 +239,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         bundle.putString("result", rawResult.getText());
 
 
-        sendRequestWithHttpURLConnection(rawResult.getText(),"1");
+        sendRequestWithHttpURLConnection(rawResult.getText(), reader);
 
 
     }
@@ -349,65 +353,69 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         return 0;
     }
 
-    private void sendRequestWithHttpURLConnection(final String code,final String devNum){
+    private void sendRequestWithHttpURLConnection(final String code, final String devNum) {
 
-        Log.d(TAG, "scanXXXXX code: "+code);
+        Log.d(TAG, "scanXXXXX code: " + code);
 
         //开启线程来发起网络请求
         new Thread(new Runnable() {
             @Override
             public void run() {
                 StringBuilder build = new StringBuilder();
-                for (int i=1;i<13;i++) {
-                    build.append(openDoor(code, String.valueOf(i)));
+
+                String[] devs = devNum.split(" ");
+                for (String dev : devs) {
+                    build.append(openDoor(code, dev));
                 }
-                Message message=new Message();
-                message.what=0;
+
+
+                Message message = new Message();
+                message.what = 0;
                 //将服务器返回的数据存放到Message中
-                message.obj=build.toString();
+                message.obj = build.toString();
                 mHandler.sendMessage(message);
             }
         }).start();
     }
 
     private String openDoor(String code, String devNum) {
-        HttpURLConnection connection=null;
-        try{
+        HttpURLConnection connection = null;
+        try {
             String ip = api;
 
-            String send = String.format(commond,ip,code,devNum);
-            Log.d(TAG, "scanXXXXX send: "+send);
-            URL url=new URL(send);
-            connection=(HttpURLConnection)url.openConnection();
+            String send = String.format(commond, ip, code, devNum);
+            Log.d(TAG, "scanXXXXX send: " + send);
+            URL url = new URL(send);
+            connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
             connection.setConnectTimeout(8000);
             connection.setReadTimeout(8000);
 
-            InputStream in=connection.getInputStream();
+            InputStream in = connection.getInputStream();
             //下面对获取到的输入流进行读取
-            BufferedReader bufr=new BufferedReader(new InputStreamReader(in));
-            StringBuilder response=new StringBuilder();
-            String line=null;
-            while((line=bufr.readLine())!=null){
+            BufferedReader bufr = new BufferedReader(new InputStreamReader(in));
+            StringBuilder response = new StringBuilder();
+            String line = null;
+            while ((line = bufr.readLine()) != null) {
                 response.append(line);
             }
             line = response.toString();
 
-            Log.d(TAG, "scanXXXXX response: "+line);
-            if (line.contains("code=000")){
-                return "打开设备"+devNum+" 成功<br/>";
-            }else {
-                return "打开设备"+devNum+" <font color='#ff6363'>失败</font> "+line +"<br/>";
+            Log.d(TAG, "scanXXXXX response: " + line);
+            if (line.contains("code=000")) {
+                return "打开设备" + devNum + " 成功<br/>";
+            } else {
+                return "打开设备" + devNum + " <font color='#ff6363'>失败</font> " + line + "<br/>";
             }
 
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
-        }finally {
-            if(connection!=null){
+        } finally {
+            if (connection != null) {
                 connection.disconnect();
             }
         }
-        return "打开设备"+devNum+" <font color='#ff6363'>失败</font>"+"<br/>";
+        return "打开设备" + devNum + " <font color='#ff6363'>失败</font>" + "<br/>";
     }
 
 

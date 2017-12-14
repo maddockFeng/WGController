@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3986e1</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+
+    <color name="white">#ffffff</color><!--白色 -->
+
+    <color name="divide_line">#c2c2c2</color>
+    <color name="divide_line2">#B7B7BB</color>
+
+
+    <color name="hint_textcolor">#7FFFFFFF</color>
+
+    <color name="btn_blue_normal">#1d9dff</color>
+    <color name="btn_blue_press">#167dcc</color>
+
+    <color name="ten_percent_gray_background">#1a000000</color>
+    <color name="half_percent_gray_background">#7F000000</color>
+    <color name="title_bg">#FFFFFF</color>
+
+
+    <color name="transparent">#00000000</color><!-- 透明 -->
+
+
+
+    <color name="btn_text_color_grey">#7F121213</color>
+    <color name="btn_text_color">#121213</color>
+
+    <color name="overlay">#19191E</color>
+
+    <color name="text_color_unselect">#802b2b2c</color>
+    <color name="bg_color">#eeeef4</color>
+
+    <color name="divider_listview_cast_info">#d8d8d8</color>
+    <color name="main_tab_text">#707070</color>
+
+    <color name="onecast_choose">#131316</color>
+    <color name="onecast_unchoose">#121213</color>
+
+    <color name="shortmovie_text">#898989</color>
+
+    <color name="title_text_color">#444444</color>
+    <color name="name_text_color">#666666</color>
+    <color name="edit_text_color">#444444</color>
+    <color name="selector_text_color">#444444</color>
+    <color name="value_text_color">#444444</color>
+    <color name="error_text_color">#da0000</color>
+
+    <color name="input_frame">#c5c5c5</color>
+
+    <color name="redpoint_bg">#f8455e</color>
+    <color name="default_theme_color">#f46e00</color>
+
+    <drawable name="table_background">#444</drawable>
+
+    <color name="setting_item_name_color">#444444</color>
+    <color name="setting_item_value_color">#80131316</color>
+    <color name="setting_title_text_color">#80131316</color>
+
+    <color name="border_visitor_end">#000000</color>
+
+    <color name="visitor_value_color">#454545</color>
+    <color name="visitor_title_color">#3986e1</color>
+</resources>

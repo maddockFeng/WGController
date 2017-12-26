@@ -36,4 +36,15 @@ public class AccessController  {
     public static int checkCard(String cardId, String id, String doorNO, String ip, int port) {
         return ac.checkCard(cardId,id,doorNO,ip,port);
     }
+
+    /**
+     * 清空控制器所有权限
+     * @param id
+     * @param ip
+     * @param port
+     * @return
+     */
+    public static int clearCard(String id,String ip, int port) {
+        return ac.clearCard(id,ip,port);
+    }
 }

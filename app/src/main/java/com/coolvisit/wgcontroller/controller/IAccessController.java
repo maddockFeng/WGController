@@ -42,4 +42,15 @@ public interface IAccessController {
      * @return 成功 1 失败 其他
      */
     public int checkCard(String cardId,String id,String doorNO,String ip, int port);
+
+    /**
+     * 清空控制器所有权限
+     * @param id
+     * @param ip
+     * @param port
+     * @return
+     */
+    public int clearCard(String id,String ip, int port);
+
+    public int addByOrder(String cardId, String startDate, String endDate, String id, String doorNO,long count,long index, String ip, int port);
 }

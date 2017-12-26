@@ -113,6 +113,13 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="20dp"
                     android:text="add" />
+
+                <Button
+                    android:id="@+id/button_record"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:text="record" />
             </LinearLayout>
 
 
@@ -127,6 +134,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="delete" />
+
+                <Button
+                    android:id="@+id/button_clear"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:text="clear" />
 
                 <Button
                     android:id="@+id/button_check"
@@ -148,6 +162,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"/>
+
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

@@ -5,7 +5,7 @@ public class Int2Bytes {
     public static void main(String[] args) {
         try {
             StringBuilder sb = new StringBuilder();
-            byte []out = int2bytes(123456);
+            byte []out = long2bytes(0);
             for (byte b : out) {
                 sb.append(String.format("%02X ", b));
             }
@@ -17,12 +17,13 @@ public class Int2Bytes {
                 sb.append(String.format("%02X ", b));
             }
             System.out.println(sb.toString());
+            System.out.println(String.valueOf(BinaryToHexString(reverseOut)));
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    static byte[] int2bytes(int n) {
+    static byte[] long2bytes(long n) {
         byte[] ab = new byte[4];
         ab[0] = (byte) (0xff & n);
         ab[1] = (byte) ((0xff00 & n) >> 8);
@@ -38,5 +39,19 @@ public class Int2Bytes {
             newAb[i] = ab[ab.length - 1 - i];
         }
         return newAb;
+    }
+
+    public static long BinaryToHexString(byte[] bytes) {
+        String hexStr = "0123456789ABCDEF";
+        String result = "";
+        String hex = "";
+        for (byte b : bytes) {
+            hex = String.valueOf(hexStr.charAt((b & 0xF0) >> 4));
+            hex += String.valueOf(hexStr.charAt(b & 0x0F));
+            result += hex;
+        }
+        result = result.replaceFirst("0", "");
+        Long i= Long.parseLong(result,16);
+        return i;
     }
 }

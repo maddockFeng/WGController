@@ -66,6 +66,8 @@ public class MainActivity extends Activity {
 		(findViewById(R.id.button_del)).setOnClickListener(listener);
 		(findViewById(R.id.button_check)).setOnClickListener(listener);
 		(findViewById(R.id.button_scan)).setOnClickListener(listener);
+		(findViewById(R.id.button_record)).setOnClickListener(listener);
+		(findViewById(R.id.button_clear)).setOnClickListener(listener);
 
 		mEditText_cardid = (EditText) findViewById(R.id.edit_cardid);
 		mEditText_devid= (EditText) findViewById(R.id.edit_devid);
@@ -93,9 +95,9 @@ public class MainActivity extends Activity {
 		public void onClick(View v) {
 			View btn = v;
 			String cardId = mEditText_cardid.getEditableText().toString();
-			String devid = mEditText_devid.getEditableText().toString();
-			String doorNo = mEditText_doorno.getEditableText().toString();
-			String ip = mEditText_ip.getEditableText().toString();
+			final String devid = mEditText_devid.getEditableText().toString();
+			final String doorNo = mEditText_doorno.getEditableText().toString();
+			final String ip = mEditText_ip.getEditableText().toString();
 			String strPort = mEditText_port.getEditableText().toString();
 			UserDB.setValue(UserDB.KEY_CARD_ID,cardId);
 			UserDB.setValue(UserDB.KEY_DEV_ID,devid);
@@ -110,7 +112,7 @@ public class MainActivity extends Activity {
 				Toast.makeText(MainActivity.this, "信息不完整", Toast.LENGTH_SHORT).show();
 				return;
 			}
-			int port = Integer.parseInt(strPort);
+			final int port = Integer.parseInt(strPort);
 
 			switch (btn.getId()) {
 			case R.id.button1:
@@ -139,6 +141,10 @@ public class MainActivity extends Activity {
 					{
 						setText("add Failed."+ret,-1);
 					}
+
+					for(int i=1000;i<3000;i++){
+						mAC.addByOrder(cardId,"20170101","20290101",devid,doorNo,2000,i-1000+1,ip,port);
+					}
 					break;
 				case R.id.button_del:
 					ret = mAC.deleteCard(cardId,devid,ip,port);
@@ -151,8 +157,30 @@ public class MainActivity extends Activity {
 						setText("delete Failed."+ret,-1);
 					}
 					break;
+				case R.id.button_clear:
+					ret = mAC.clearCard(devid,ip,port);
+					if (ret >0)
+					{
+						setText("clear Successful!",1);
+					}
+					else
+					{
+						setText("clear Failed."+ret,-1);
+					}
+					break;
 				case R.id.button_check:
 					ret = mAC.checkCard(cardId,devid,doorNo,ip,port);
+					if (ret >0)
+					{
+						setText("check Successful!",1);
+					}
+					else
+					{
+						setText("check Failed."+ret,-1);
+					}
+					break;
+				case R.id.button_record:
+					ret = WGController.getUnReadRecord(devid,ip,port);
 					if (ret >0)
 					{
 						setText("check Successful!",1);
@@ -261,7 +289,7 @@ public class MainActivity extends Activity {
 		return ret; // null;
 	}
 
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.

@@ -47,4 +47,8 @@ public class AccessController  {
     public static int clearCard(String id,String ip, int port) {
         return ac.clearCard(id,ip,port);
     }
+
+    public static int getAllCards(String id,String ip, int port) {
+        return ac.getAllCards(id,ip,port);
+    }
 }

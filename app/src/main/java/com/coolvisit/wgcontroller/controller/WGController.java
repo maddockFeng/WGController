@@ -9,6 +9,8 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 //import android.util.Log;
 import com.coolvisit.wgcontroller.MainActivity;
 
@@ -25,6 +27,8 @@ public class WGController implements IAccessController {
     public WGController() {
 
     }
+
+    private static int[] BIT=new int[]{0,1,2,4,8,16,32,64,128};
 
     private static byte[] newByte() {
         byte[] byteCmd = new byte[]{(byte) 0x17, (byte) 0x00,
@@ -47,52 +51,26 @@ public class WGController implements IAccessController {
         return byteCmd;
     }
 
-    public int searchDevices(String ip, int port) {
-        byte[] byteCmd = newByte();
-        int ret = -13;
-        byteCmd[1] = (byte) 0x94;
-
-
-        byte content[] = sendCmd(byteCmd, ip, port);
-
-        if ((content != null) && (content.length == 64)) {
-            ret = content[8];
-        } else {
-            ret = -13;
-        }
-
-        return ret;
+    private static byte[] newByteLift() {
+        byte[] byteCmd = new byte[]{(byte) 0x17, (byte) 0x50,
+                (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                (byte) 0x00, (byte) 0x00};
+        return byteCmd;
     }
-
-    @Override
-    public int open(String id, int doorNO, String ip, int port) {
-        byte[] byteCmd = newByte();
-        byte[] idByte = long2bytes(Long.parseLong(id));
-        int ret = -13;
-        byteCmd[1] = (byte) 0x40;
-        byteCmd[8] = (byte) doorNO;
-        byteCmd[40] = (byte) (tag & 0xff);
-        byteCmd[41] = (byte) ((tag >> 8) & 0xff);
-        byteCmd[42] = (byte) ((tag >> 16) & 0xff);
-        byteCmd[43] = (byte) ((tag >> 24) & 0xff);
-
-        for (int i = 0, j = 4; i < 4; i++, j++) {
-            byteCmd[j] = (byte) (idByte[i]);
-        }
-
-        byte content[] = sendCmd(byteCmd, ip, port);
-
-
-        if ((content != null) && (content.length == 64)) {
-            ret = content[8];
-        } else {
-            ret = -13;
-        }
-        tag++;
-
-        return ret;
-    }
-
 
     @Override
     public int modifyCard(String cardId, String startDate, String endDate, String id, String doorNO, String ip, int port) {
@@ -102,7 +80,7 @@ public class WGController implements IAccessController {
         }
         if (startDate == null || startDate.length() != 8
                 || endDate == null || endDate.length() != 8) {
-            return -2;
+            return AccessController.ERROR_CARD_DATE;
         }
 
         //cardid最大值4294967295  2147483647
@@ -167,6 +145,168 @@ public class WGController implements IAccessController {
         for (int i = 0, j = 12; i < 4; i++, j++) {
             byteCmd[j] = (byte) (startByte[i]);
         }
+        byte[] endByte = hexStringToByte(endDate);
+        for (int i = 0, j = 16; i < 4; i++, j++) {
+            byteCmd[j] = (byte) (endByte[i]);
+        }
+
+        byte content[] = sendCmd(byteCmd, ip, port);
+
+
+        if ((content != null) && (content.length == 64)) {
+            ret = content[8];
+        } else {
+            ret = -13;
+        }
+        tag++;
+
+        return ret;
+    }
+
+
+    public int searchDevices(String ip, int port) {
+        byte[] byteCmd = newByte();
+        int ret = -13;
+        byteCmd[1] = (byte) 0x94;
+
+
+        byte content[] = sendCmd(byteCmd, ip, port);
+
+        if ((content != null) && (content.length == 64)) {
+            ret = content[8];
+        } else {
+            ret = -13;
+        }
+
+        return ret;
+    }
+
+    @Override
+    public int open(String id, int doorNO, String ip, int port) {
+        //id最大值4294967295  2147483647
+        try {
+            long Max_id = 4294967295l;
+            if (Long.parseLong(id) > Max_id) {
+                return AccessController.ERROR_SN;
+            }
+        } catch (Exception e) {
+            return AccessController.ERROR_SN;
+        }
+
+        byte[] byteCmd = newByte();
+        byte[] idByte = long2bytes(Long.parseLong(id));
+        int ret = -13;
+        byteCmd[1] = (byte) 0x40;
+        byteCmd[8] = (byte) doorNO;
+        byteCmd[40] = (byte) (tag & 0xff);
+        byteCmd[41] = (byte) ((tag >> 8) & 0xff);
+        byteCmd[42] = (byte) ((tag >> 16) & 0xff);
+        byteCmd[43] = (byte) ((tag >> 24) & 0xff);
+
+        for (int i = 0, j = 4; i < 4; i++, j++) {
+            byteCmd[j] = (byte) (idByte[i]);
+        }
+
+        byte content[] = sendCmd(byteCmd, ip, port);
+
+
+        if ((content != null) && (content.length == 64)) {
+            ret = content[8];
+        } else {
+            ret = -13;
+        }
+        tag++;
+
+        return ret;
+    }
+
+
+    @Override
+    public int liftModifyCard(String cardId, String startDate, String endDate, String id, String floors, String ip, int port) {
+
+        if (cardId == null) {
+            return AccessController.ERROR_CARD_ID;
+        }
+        if (startDate == null || startDate.length() != 8
+                || endDate == null || endDate.length() != 8) {
+            return AccessController.ERROR_CARD_DATE;
+        }
+
+        //cardid最大值4294967295  2147483647
+        try {
+            long Max_cardId = 4294967295l;
+            if (Long.parseLong(cardId) > Max_cardId) {
+                return AccessController.ERROR_CARD_ID;
+            }
+        } catch (Exception e) {
+            return AccessController.ERROR_CARD_ID;
+        }
+
+        //id最大值4294967295  2147483647
+        try {
+            long Max_id = 4294967295l;
+            if (Long.parseLong(id) > Max_id) {
+                return AccessController.ERROR_SN;
+            }
+        } catch (Exception e) {
+            return AccessController.ERROR_SN;
+        }
+        byte[] byteCmd = newByte();
+        byteCmd[1] = (byte) 0x50;
+
+        byte[] idByte = long2bytes(Long.parseLong(id));
+        byte[] cardByte = long2bytes(Long.parseLong(cardId));
+        int ret = -13;
+
+        byteCmd[20] = (byte) 0x01;
+        int[] count = new int[]{0,0,0,0,0};
+        String[] floorlist =floors.split(",");
+        for(String floor:floorlist){
+            int intFloor = Integer.parseInt(floor);
+            if (intFloor<=8){
+                count[0]+=BIT[intFloor];
+            }else if (intFloor<=16){
+                count[1]+=BIT[(intFloor-8)];
+            }else if (intFloor<=24){
+                count[2]+=BIT[(intFloor-16)];
+            }else if (intFloor<=32){
+                count[3]+=BIT[(intFloor-24)];
+            }else if (intFloor<=40){
+                count[4]+=BIT[(intFloor-32)];
+            }
+        }
+        Log.e("WG","count:"+count[0]+" "+count[1]+" "+count[2]+" "+count[3]+" "+count[4]);
+        hexStringToByte(demical2Hex(count[0]));
+        //1-8 楼
+        String str0 = demical2Hex(count[0]);
+        Log.e("WG","str0:"+str0);
+        byteCmd[21] = hexToByte(str0);
+        //9-16楼
+        byteCmd[22] = hexToByte(demical2Hex(count[1]));
+        //17-14楼
+        byteCmd[23] = hexToByte(demical2Hex(count[2]));
+        //25-32楼
+        byteCmd[29] = hexToByte(demical2Hex(count[3]));
+        //33-40楼
+        byteCmd[30] = hexToByte(demical2Hex(count[4]));
+
+        //4-7 设备号
+        for (int i = 0, j = 4; i < 4; i++, j++) {
+            byteCmd[j] = (byte) (idByte[i]);
+        }
+
+        //8-11 卡号
+        for (int i = 0, j = 8; i < 4; i++, j++) {
+            byteCmd[j] = (byte) (cardByte[i]);
+        }
+
+        //12-15 起始日期
+        byte[] startByte = hexStringToByte(startDate);
+        for (int i = 0, j = 12; i < 4; i++, j++) {
+            byteCmd[j] = (byte) (startByte[i]);
+        }
+
+        //16-19 截止日期
         byte[] endByte = hexStringToByte(endDate);
         for (int i = 0, j = 16; i < 4; i++, j++) {
             byteCmd[j] = (byte) (endByte[i]);
@@ -417,7 +557,7 @@ public class WGController implements IAccessController {
         }
         if (startDate == null || startDate.length() != 8
                 || endDate == null || endDate.length() != 8) {
-            return -2;
+            return AccessController.ERROR_CARD_DATE;
         }
 
         //cardid最大值4294967295  2147483647
@@ -687,6 +827,107 @@ public class WGController implements IAccessController {
         return ret;
     }
 
+    @Override
+    public int getAllCards(String sn, String ip, int port){
+        long count = getCardCount(sn,ip,port);
+        Log.d("card","card count "+count);
+        if(count == 0){
+            return 0;
+        }
+        long get=0;
+        //4294967295l
+        for(long index=0;index<4294967295l;index++){
+            List<String> card = getCard(sn,index,ip,port);
+
+            if(card.size()>0){
+                get++;
+                Log.d("card","card="+card.get(0)+" start="+card.get(1)+"  end="+card.get(2));
+            }else {
+                Log.d("card","index "+index +"card= null");
+            }
+            if(get == count){
+                return (int) count;
+            }
+        }
+        return -1;
+    }
+
+    public static long getCardCount(String sn, String ip, int port) {
+        byte[] byteCmd = newByte();
+        byte[] idByte = long2bytes(Long.parseLong(sn));
+        int ret = -13;
+        byteCmd[1] = (byte) 0x58;
+
+        byteCmd[40] = (byte) (tag & 0xff);
+        byteCmd[41] = (byte) ((tag >> 8) & 0xff);
+        byteCmd[42] = (byte) ((tag >> 16) & 0xff);
+        byteCmd[43] = (byte) ((tag >> 24) & 0xff);
+
+        for (int i = 0, j = 4; i < 4; i++, j++) {
+            byteCmd[j] = (byte) (idByte[i]);
+        }
+
+        byte content[] = sendCmd(byteCmd, ip, port);
+
+
+        if ((content != null) && (content.length == 64)) {
+
+                long count = getLongByByte(content,8,4) ;
+                return  count;
+
+        } else {
+            ret = -13;
+        }
+        tag++;
+
+        return ret;
+    }
+
+    public static List<String> getCard(String sn, long index, String ip, int port) {
+        List<String> list = new ArrayList<String>();
+        byte[] byteCmd = newByte();
+        byte[] idByte = long2bytes(Long.parseLong(sn));
+        int ret = -13;
+        byteCmd[1] = (byte) 0x5C;
+
+        byteCmd[40] = (byte) (tag & 0xff);
+        byteCmd[41] = (byte) ((tag >> 8) & 0xff);
+        byteCmd[42] = (byte) ((tag >> 16) & 0xff);
+        byteCmd[43] = (byte) ((tag >> 24) & 0xff);
+
+        for (int i = 0, j = 4; i < 4; i++, j++) {
+            byteCmd[j] = (byte) (idByte[i]);
+        }
+
+        byte[] byteIndex = long2bytes(index);
+        byteCmd[8] = byteIndex[0];
+        byteCmd[9] = byteIndex[1];
+        byteCmd[10] = byteIndex[2];
+        byteCmd[11] = byteIndex[3];
+
+        byte content[] = sendCmd(byteCmd, ip, port);
+
+
+        if ((content != null) && (content.length == 64)) {
+            ret = content[20];
+            if (ret == 1) {
+                String cardId,  start,  end;
+                cardId = getLongByByte(content, 8, 4) + "";
+                start = BinaryToHexString(content,12,4);
+                end = BinaryToHexString(content,16,4);
+                list.add(cardId);
+                list.add(start);
+                list.add(end);
+                return list;
+            }
+        } else {
+            ret = -13;
+        }
+        tag++;
+
+        return list;
+    }
+
     private static byte[] sendCmd(byte[] byteCmd, String ip, int port) {
         Log("IAccessController sendCmd: " + BinaryToHexString(byteCmd));
         return sendByUDP(byteCmd, ip, port);
@@ -757,6 +998,12 @@ public class WGController implements IAccessController {
         return result;
     }
 
+
+
+    public static byte hexToByte(String inHex){
+        return (byte)Integer.parseInt(inHex,16);
+    }
+
     private static byte toByte(char c) {
         byte b = (byte) "0123456789ABCDEF".indexOf(c);
         return b;
@@ -782,6 +1029,19 @@ public class WGController implements IAccessController {
         return result;
     }
 
+    public static String BinaryToHexString(byte[] bytes,int startIndex,int count) {
+        String hexStr = "0123456789ABCDEF";
+        String result = "";
+        String hex = "";
+
+        for (int index = startIndex;index<(startIndex+4); index++) {
+            hex = String.valueOf(hexStr.charAt((bytes[index] & 0xF0) >> 4));
+            hex += String.valueOf(hexStr.charAt(bytes[index] & 0x0F));
+            result += hex;
+        }
+        return result;
+    }
+
     /**
      * @功能: BCD码转为10进制串(阿拉伯数据)
      * @参数: BCD码
@@ -795,6 +1055,16 @@ public class WGController implements IAccessController {
         }
         return temp.toString().substring(0, 1).equalsIgnoreCase("0") ? temp
                 .toString().substring(1) : temp.toString();
+    }
+
+    /**
+     * 10进制转16进制
+     * @param i
+     * @return
+     */
+    public static String demical2Hex(int i) {
+        String s = Integer.toHexString(i);
+        return s;
     }
 
     /**
@@ -902,5 +1172,44 @@ public class WGController implements IAccessController {
         result = result.replaceFirst("0", "");
         Long i = Long.parseLong(result, 16);
         return i;
+    }
+
+    public static byte[] intToByteArray(int a) {
+        return new byte[] {
+                (byte) ((a >> 24) & 0xFF),
+                (byte) ((a >> 16) & 0xFF),
+                (byte) ((a >> 8) & 0xFF),
+                (byte) (a & 0xFF)
+        };
+    }
+
+    //从字节转换为 long型数据, 最大长度为8字节 低位在前, 高位在后...
+    //bytlen (1--8), 不在此范围则返回 -1
+    public static long getLongByByte(byte[] data,int startIndex,int bytlen)
+    {
+        long ret =-1;
+        if ((bytlen >=1) && (bytlen <=8))
+        {
+            ret = getIntByByte(data[startIndex + bytlen-1]);
+            for (int i=1; i<bytlen; i++)
+            {
+                ret <<=8;
+                ret += getIntByByte(data[startIndex + bytlen-1-i]);
+            }
+        }
+        return ret;
+    }
+
+    //将带符号的bt转换为不带符号的int类型数据
+    public static int getIntByByte(byte bt)  //bt 转换为无符号的int
+    {
+        if (bt <0)
+        {
+            return (bt+256);
+        }
+        else
+        {
+            return bt;
+        }
     }
 }

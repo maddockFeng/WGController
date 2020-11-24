@@ -1,26 +1,32 @@
 package com.coolvisit.wgcontroller.controller;
 
+import org.apache.commons.codec.digest.DigestUtils;
+
+import java.util.Properties;
+
+
 public class Int2Bytes {
 
     public static void main(String[] args) {
-        try {
-            StringBuilder sb = new StringBuilder();
-            byte []out = long2bytes(0);
-            for (byte b : out) {
-                sb.append(String.format("%02X ", b));
-            }
-            System.out.println(sb.toString());
+//        try {
+//            StringBuilder sb = new StringBuilder();
+//            byte []out = long2bytes(0);
+//            for (byte b : out) {
+//                sb.append(String.format("%02X ", b));
+//            }
+//            System.out.println(sb.toString());
+//
+//            sb = new StringBuilder();
+//            byte []reverseOut = reverse(out);
+//            for (byte b : reverseOut) {
+//                sb.append(String.format("%02X ", b));
+//            }
+//            System.out.println(sb.toString());
+//            System.out.println(String.valueOf(BinaryToHexString(reverseOut)));
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
-            sb = new StringBuilder();
-            byte []reverseOut = reverse(out);
-            for (byte b : reverseOut) {
-                sb.append(String.format("%02X ", b));
-            }
-            System.out.println(sb.toString());
-            System.out.println(String.valueOf(BinaryToHexString(reverseOut)));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     static byte[] long2bytes(long n) {
@@ -54,4 +60,20 @@ public class Int2Bytes {
         Long i= Long.parseLong(result,16);
         return i;
     }
+
+    /**
+     * 校验二维码有效性
+     * @param qrcode
+     * @return 0 通过，-1 失败
+     */
+    public static  int checkString(String  qrcode){
+        String key="dejiplaza";//充当密钥
+        String aes= DigestUtils.sha512Hex(qrcode.substring(16)+key).substring(8, 24);
+        if(!aes.equals(qrcode.substring(0,16))){
+            return -1;
+        }else {
+            return 0;
+        }
+    }
+
 }

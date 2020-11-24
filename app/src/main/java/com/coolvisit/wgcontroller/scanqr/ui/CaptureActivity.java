@@ -44,6 +44,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -83,6 +85,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     private Button back_main;
     private Rect mCropRect = null;
     private String commond = "%1$s?vgdecoderesult=%2$s&&devicenumber=%3$s&&otherparams";
+    private String commond2 = "vgdecoderesult=%1$s&&devicenumber=%2$s";
     private TextView resultView;
 
     public Handler getHandler() {
@@ -367,7 +370,12 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
                 for (String dev : devs) {
                     build.append(openDoor(code, dev));
                 }
-
+                build.append("<br/>");
+                build.append("<br/>");
+                build.append("<br/>");
+                for (String dev : devs) {
+                    build.append(openDoor2(code, dev));
+                }
 
                 Message message = new Message();
                 message.what = 0;
@@ -380,10 +388,8 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
     private String openDoor(String code, String devNum) {
         HttpURLConnection connection = null;
+        String send = String.format(commond, api, code, devNum);
         try {
-            String ip = api;
-
-            String send = String.format(commond, ip, code, devNum);
             Log.d(TAG, "scanXXXXX send: " + send);
             URL url = new URL(send);
             connection = (HttpURLConnection) url.openConnection();
@@ -415,8 +421,51 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
                 connection.disconnect();
             }
         }
-        return "打开设备" + devNum + " <font color='#ff6363'>失败</font>" + "<br/>";
+        return "打开设备" + devNum + " <font color='#ff6363'>失败</font>" + "<br/> 返回数据异常，打开链接："+send+"<br/>";
     }
 
+    private String openDoor2(String code, String devNum) {
+        HttpURLConnection connection = null;
+        String send = String.format(commond2,code, devNum);
+        try {
+            Log.d(TAG, "scanXXXXX send: " + send);
+            URL url = new URL(api);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setConnectTimeout(8000);
+            connection.setReadTimeout(8000);
+
+            OutputStream objOutputStrm = connection.getOutputStream();
+            objOutputStrm.write(send.getBytes()); // 这里发送一个空数据
+            // 甚至可以发一个null对象，服务端取到后再做判断处理。
+            objOutputStrm.flush();
+            objOutputStrm.close();
+
+            InputStream in = connection.getInputStream();
+            //下面对获取到的输入流进行读取
+            BufferedReader bufr = new BufferedReader(new InputStreamReader(in));
+            StringBuilder response = new StringBuilder();
+            String line = null;
+            while ((line = bufr.readLine()) != null) {
+                response.append(line);
+            }
+            line = response.toString();
+
+            Log.d(TAG, "scanXXXXX response: " + line);
+            if (line.contains("code=000")) {
+                return "打开新设备" + devNum + " 成功<br/>";
+            } else {
+                return "打开新设备" + devNum + " <font color='#ff6363'>失败</font> " + line + "<br/>";
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+        return "打开新设备" + devNum + " <font color='#ff6363'>失败</font>" + "<br/> 返回数据异常，打开链接："+send+"<br/>";
+    }
 
 }

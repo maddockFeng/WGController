@@ -68,6 +68,10 @@ public class MainActivity extends Activity {
 		(findViewById(R.id.button_scan)).setOnClickListener(listener);
 		(findViewById(R.id.button_record)).setOnClickListener(listener);
 		(findViewById(R.id.button_clear)).setOnClickListener(listener);
+		(findViewById(R.id.lift_add)).setOnClickListener(listener);
+		(findViewById(R.id.lift_open)).setOnClickListener(listener);
+		(findViewById(R.id.lift_delete)).setOnClickListener(listener);
+		(findViewById(R.id.button_cards)).setOnClickListener(listener);
 
 		mEditText_cardid = (EditText) findViewById(R.id.edit_cardid);
 		mEditText_devid= (EditText) findViewById(R.id.edit_devid);
@@ -142,10 +146,11 @@ public class MainActivity extends Activity {
 						setText("add Failed."+ret,-1);
 					}
 
-					for(int i=1000;i<3000;i++){
-						mAC.addByOrder(cardId,"20170101","20290101",devid,doorNo,2000,i-1000+1,ip,port);
-					}
+//					for(int i=1000;i<3000;i++){
+//						mAC.addByOrder(cardId,"20170101","20290101",devid,doorNo,2000,i-1000+1,ip,port);
+//					}
 					break;
+                case R.id.lift_delete:
 				case R.id.button_del:
 					ret = mAC.deleteCard(cardId,devid,ip,port);
 					if (ret >0)
@@ -204,6 +209,24 @@ public class MainActivity extends Activity {
 					intent.putExtra("reader",reader);
 					startActivity(intent);
 					break;
+                case R.id.lift_add:
+                    ret = mAC.liftModifyCard(cardId,"20170101","20290101",devid,doorNo,ip,port);
+                    if ( ret >0)
+                    {
+                        setText("add Successful!",1);
+                    }
+                    else
+                    {
+                        setText("add Failed."+ret,-1);
+                    }
+
+//					for(int i=1000;i<3000;i++){
+//						mAC.addByOrder(cardId,"20170101","20290101",devid,doorNo,2000,i-1000+1,ip,port);
+//					}
+                    break;
+                case R.id.button_cards:
+                    mAC.getAllCards(devid,ip,port);
+                    break;
 			default:
 				break;
 			}
@@ -316,29 +339,6 @@ public class MainActivity extends Activity {
 			((TextView) findViewById(R.id.textView1)).setTextColor(Color.RED);
 		}
 		((TextView) findViewById(R.id.textView1)).setText(msg);
-	}
-
-	int p = 5;
-	int g = 5;
-	int count = 5;
-	private void he(){
-
-		int j = p/2;
-		count = count + j;
-		p = p-j;
-		g = g+j;
-
-		j = g/4;
-		count = count+j;
-		p = p+j;
-		g = g-j*3;
-
-		Log.d("main", "喝: "+p+"瓶子 "+g+"盖子 酒:"+count);
-
-		if (p>= 2 || g >=4){
-			he();
-		}
-
 	}
 
 }

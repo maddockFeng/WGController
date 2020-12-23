@@ -14,6 +14,7 @@ public class UserDB {
 	public static final String KEY_PORT = "KEY_PORT";
 	public static final String KEY_OPEN_API = "KEY_OPEN_API";
 	public static final String KEY_READER_NUM = "KEY_READER_NUM";
+	public static final String KEY_READER_NUM2 = "KEY_READER_NUM2";
 
 	private static SharedPreferences sSharedPrefs = ControllerApp.getInstance().getSharedPreferences(PREFERENCES_USER, 0);
 	private static Editor sEditor = sSharedPrefs.edit();

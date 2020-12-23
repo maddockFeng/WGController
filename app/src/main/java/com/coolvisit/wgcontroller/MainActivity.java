@@ -48,7 +48,7 @@ public class MainActivity extends Activity {
 
 	private IAccessController mAC;
 	private EditText mEditText_cardid,mEditText_devid,mEditText_doorno,mEditText_ip,mEditText_port;
-	private EditText mEditText_server_api,mEditText_ReaderNum;
+	private EditText mEditText_server_api,mEditText_ReaderNum,mEditText_ReaderNum2;
 	public static TextView mPrintView;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +66,7 @@ public class MainActivity extends Activity {
 		(findViewById(R.id.button_del)).setOnClickListener(listener);
 		(findViewById(R.id.button_check)).setOnClickListener(listener);
 		(findViewById(R.id.button_scan)).setOnClickListener(listener);
+		(findViewById(R.id.button_scan2)).setOnClickListener(listener);
 		(findViewById(R.id.button_record)).setOnClickListener(listener);
 		(findViewById(R.id.button_clear)).setOnClickListener(listener);
 		(findViewById(R.id.lift_add)).setOnClickListener(listener);
@@ -80,6 +81,7 @@ public class MainActivity extends Activity {
 		mEditText_port = (EditText) findViewById(R.id.edit_port);
 		mEditText_server_api = (EditText) findViewById(R.id.server_open_api);
 		mEditText_ReaderNum = (EditText) findViewById(R.id.reader_number);
+		mEditText_ReaderNum2 = (EditText) findViewById(R.id.reader_number2);
 		mPrintView = (TextView) findViewById(R.id.print);
 
 		mEditText_cardid.setText(UserDB.getValue(UserDB.KEY_CARD_ID,""));
@@ -89,6 +91,7 @@ public class MainActivity extends Activity {
 		mEditText_port.setText(UserDB.getValue(UserDB.KEY_PORT,""));
 		mEditText_server_api.setText(UserDB.getValue(UserDB.KEY_OPEN_API,"http://www.coolvisit.top/qcvisit/uploadQrcode"));
 		mEditText_ReaderNum.setText(UserDB.getValue(UserDB.KEY_READER_NUM,""));
+		mEditText_ReaderNum2.setText(UserDB.getValue(UserDB.KEY_READER_NUM2,""));
 
 		mAC = new WGController();
 //		mAC.searchDevices("255.255.255.255",60000);
@@ -195,20 +198,36 @@ public class MainActivity extends Activity {
 						setText("check Failed."+ret,-1);
 					}
 					break;
-				case R.id.button_scan:
-					String api = mEditText_server_api.getEditableText().toString();
-					String reader = mEditText_ReaderNum.getEditableText().toString();
-					UserDB.setValue(UserDB.KEY_OPEN_API,api);
-					UserDB.setValue(UserDB.KEY_READER_NUM,reader);
-					if(api.isEmpty() || reader.isEmpty()){
-						Toast.makeText(MainActivity.this, "读头信息不完整！", Toast.LENGTH_SHORT).show();
-						return;
-					}
-					Intent intent = new Intent(MainActivity.this, CaptureActivity.class);
-					intent.putExtra("api",api);
-					intent.putExtra("reader",reader);
-					startActivity(intent);
-					break;
+				case R.id.button_scan: {
+                    String api = mEditText_server_api.getEditableText().toString();
+                    String reader = mEditText_ReaderNum.getEditableText().toString();
+                    UserDB.setValue(UserDB.KEY_OPEN_API, api);
+                    UserDB.setValue(UserDB.KEY_READER_NUM, reader);
+                    if (api.isEmpty() || reader.isEmpty()) {
+                        Toast.makeText(MainActivity.this, "读头信息不完整！", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    Intent intent = new Intent(MainActivity.this, CaptureActivity.class);
+                    intent.putExtra("api", api);
+                    intent.putExtra("reader", reader);
+                    startActivity(intent);
+                    break;
+                }
+                case R.id.button_scan2: {
+                    String api = mEditText_server_api.getEditableText().toString();
+                    String reader = mEditText_ReaderNum2.getEditableText().toString();
+                    UserDB.setValue(UserDB.KEY_OPEN_API, api);
+                    UserDB.setValue(UserDB.KEY_READER_NUM, reader);
+                    if (api.isEmpty() || reader.isEmpty()) {
+                        Toast.makeText(MainActivity.this, "读头信息不完整！", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    Intent intent = new Intent(MainActivity.this, CaptureActivity.class);
+                    intent.putExtra("api", api);
+                    intent.putExtra("reader", reader);
+                    startActivity(intent);
+                    break;
+                }
                 case R.id.lift_add:
                     ret = mAC.liftModifyCard(cardId,"20170101","20290101",devid,doorNo,ip,port);
                     if ( ret >0)
